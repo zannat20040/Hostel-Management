@@ -39,6 +39,12 @@ async function run() {
       }
     })
 
+
+    app.get('/members', async (req, res) => {
+      const result = await allmembers.find().toArray();
+      res.send(result)
+    })
+
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
   }
