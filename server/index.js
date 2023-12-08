@@ -30,36 +30,36 @@ async function run() {
     // ----------Schedule
 
 
-    // cron.schedule('* * * * *', async () => {
-    //   // console.log('running a task every day');
-    //   const result = await allmembers.find().toArray();
+    cron.schedule('* * * * *', async () => {
+      // console.log('running a task every day');
+      const result = await allmembers.find().toArray();
 
-    //   for (const booking of result) {
-    //     const targetDate = new Date(booking.bookingDate)
-    //     const today = new Date()
+      for (const booking of result) {
+        const targetDate = new Date(booking.bookingDate)
+        const today = new Date()
 
-    //     targetDate.setMonth(targetDate.getMonth() + 1);
+        targetDate.setMonth(targetDate.getMonth() + 1);
 
 
-    //     if (
-    //       today >= targetDate
-    //     ) {
-    //       const userExist = await paymentCheck.findOne({ memberId: booking._id });
-    //       if (userExist) {
-    //         // console.log('already exist')
-    //       }
-    //       else {
-    //         const newPay = {
-    //           memberId: booking._id,
-    //           phoneNumber: booking.phoneNumber,
-    //           status: 'due'
-    //         }
-    //         await paymentCheck.insertOne(newPay);
-    //         // console.log(newPay)
-    //       }
-    //     }
-    //   }
-    // });
+        if (
+          today >= targetDate
+        ) {
+          const userExist = await paymentCheck.findOne({ memberId: booking._id });
+          if (userExist) {
+            // console.log('already exist')
+          }
+          else {
+            const newPay = {
+              memberId: booking._id,
+              phoneNumber: booking.phoneNumber,
+              status: 'due'
+            }
+            await paymentCheck.insertOne(newPay);
+            // console.log(newPay)
+          }
+        }
+      }
+    });
 
 
     // -------------- post 
