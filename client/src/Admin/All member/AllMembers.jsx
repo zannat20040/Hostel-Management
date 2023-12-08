@@ -30,7 +30,7 @@ const AllMembers = () => {
   });
 
   return (
-    <div className="container my-auto overflow-x-scroll md:overflow-x-auto mt-10">
+    <div className="min-h-screen bg-base-200 px-6 overflow-x-auto py-10">
       <table className="table bg-slate-100 shadow-lg rounded-none">
         {/* head */}
         <thead>

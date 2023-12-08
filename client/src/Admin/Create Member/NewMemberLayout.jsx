@@ -4,7 +4,7 @@ import Button from '../../Shared Component/Button';
 const NewMemberLayout = ({HandleAddMember}) => {
     return (
         <div className="hero min-h-screen bg-base-200 px-6 ">
-        <div className="card w-full shadow-2xl rounded-none bg-base-100">
+        <div className="card w-full max-w-xl shadow-2xl rounded-none bg-base-100">
           <form className="card-body" onSubmit={HandleAddMember}>
             <div className="grid grid-cols-3 gap-4">
               <div className="form-control col-span-2">
