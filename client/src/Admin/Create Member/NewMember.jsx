@@ -1,6 +1,7 @@
 import React from "react";
 import NewMemberLayout from "./NewMemberLayout";
 import axios from 'axios'
+import toast from "react-hot-toast";
 
 const NewMember = () => {
     const HandleAddMember=(e)=>{
@@ -27,9 +28,15 @@ const NewMember = () => {
 
         console.log(newMember)
 
-        axios.post('/members', newMember)
+        axios.post('http://localhost:5000/members', newMember)
         .then(res=>{
-            console.log(res.data)
+            if(res.data.insertedId){
+                console.log('')
+                toast.success('A new girl admitted successfully')
+            }
+            else{
+                toast.error(res.data.message)
+            }
         })
         .catch(err=>{
             console.log(err)

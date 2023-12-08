@@ -24,10 +24,8 @@ async function run() {
   try {
     const database = client.db("HostelDB");
     const allmembers = database.collection("membersCollection");
+
    
-    app.post('/members', (req,res)=>{
-      
-    })
 
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
@@ -37,9 +35,9 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send('Hello World!')
-  })
-  
-  app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
-  })
+  res.send('Hello World!')
+})
+
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`)
+})
