@@ -1,8 +1,23 @@
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 import React from "react";
 
-const AllMembers = () => {
 
-    
+const AllMembers = () => {
+  const query = useQuery({ 
+    queryKey: ['todos'], 
+    queryFn: ()=>{
+      axios.get('http://localhost:5000/')
+      .then(res=>{
+        console.log(res.data)
+      })
+      .catch(err=>{
+        console.log(err)
+      })
+    } 
+  })
+  console.log(query)
+  
 
   return (
     <div className="overflow-x-auto">
