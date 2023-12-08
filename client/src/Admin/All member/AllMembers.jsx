@@ -27,8 +27,8 @@ const AllMembers = () => {
   // }
 
   return (
-    <div className="container mx-auto px-6 ">
-      <table className="table  bg-slate-100 rounded-none ">
+    <div className="container my-auto overflow-x-scroll md:overflow-x-auto mt-10">
+      <table className="table bg-slate-100 shadow-lg rounded-none">
         {/* head */}
         <thead>
           <tr className=" bg-slate-400 text-white text-center">
@@ -44,7 +44,39 @@ const AllMembers = () => {
         </thead>
         <tbody>
           {/* row 1 */}
-         
+          {isLoading ? (
+            <div className="py-4 w-10 mx-auto">
+              <span className="loading loading-ring loading-lg "></span>
+            </div>
+          ) : (
+            members?.map((member, index) => (
+              <tr className="text-center">
+                <td>{index + 1}</td>
+                <td>
+                  <div className="flex items-center gap-3">
+                    <div className="avatar">
+                      <div className="mask mask-squircle w-12 h-12">
+                        <img
+                          src={member?.image}
+                          alt="Avatar Tailwind CSS Component"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td>{member?.name}</td>
+                <td>{member?.phoneNumber}</td>
+                <td>{member?.bookingDate}</td>
+                <td>{member?.bookingAmount}</td>
+                <td>{member?.advanceAmount}</td>
+                <th>
+                  <button className="btn btn-sm w-full capitalize rounded-none bg-indigo-300 border-0 text-white">
+                    pay
+                  </button>
+                </th>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>
