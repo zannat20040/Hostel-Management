@@ -20,9 +20,15 @@ const client = new MongoClient(uri, {
 });
 
 async function run() {
+
   try {
+    const database = client.db("HostelDB");
+    const allmembers = database.collection("membersCollection");
    
-    
+    app.post('/members', (req,res)=>{
+      
+    })
+
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
   }
