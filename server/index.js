@@ -25,7 +25,19 @@ async function run() {
     const database = client.db("HostelDB");
     const allmembers = database.collection("membersCollection");
 
-   
+    app.post('/members', async (req, res) => {
+      const member = req.body;
+      const query = { phoneNumber: member.phoneNumber }
+      const findMember = await allmembers.findOne(query);
+      if (findMember) {
+        
+        res.send({message: 'This girl is already admitted'})
+      }
+      else {
+        const result = await allmembers.insertOne(member);
+        res.send(result)
+      }
+    })
 
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
