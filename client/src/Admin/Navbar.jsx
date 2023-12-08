@@ -16,8 +16,8 @@ const Navbar = () => {
           <ul className="menu p-4 w-80 min-h-full bg-indigo-500  text-white">
             {/* Sidebar content here */}
             
-            <li><Link to='createmember'>New member</Link></li>
-            <li><Link>Sidebar Item 2</Link></li>
+            <li><Link to='/'>New member</Link></li>
+            <li><Link to='members'>All girls</Link></li>
        
           </ul>
         
