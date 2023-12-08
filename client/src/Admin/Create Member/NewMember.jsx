@@ -24,6 +24,8 @@ const NewMember = () => {
             monthlyPayment:roomPackage,
             bookingAmount: bookingpay,
             advanceAmount: advancepay,
+            status:'running',
+            dueMonth:'1'
         }
 
         console.log(newMember)

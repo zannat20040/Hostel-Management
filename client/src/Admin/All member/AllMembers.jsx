@@ -1,7 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import React from "react";
-import Button from "../../Shared Component/Button";
+import React, { useEffect, useState } from "react";
 
 const AllMembers = () => {
   const { data: members, isLoading } = useQuery({
@@ -16,15 +15,19 @@ const AllMembers = () => {
       }
     },
   });
-  console.log(members, isLoading);
 
-  // if (isLoading) {
-  //   return (
-  //     <div className="container mx-auto mt-5">
-  //       <span className="loading loading-ring loading-lg"></span>
-  //     </div>
-  //   );
-  // }
+  const { data: payments } = useQuery({
+    queryKey: ["payments"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/paymentCheck");
+        return response.data;
+      } catch (error) {
+        console.log(error);
+        throw error;
+      }
+    },
+  });
 
   return (
     <div className="container my-auto overflow-x-scroll md:overflow-x-auto mt-10">
@@ -36,10 +39,12 @@ const AllMembers = () => {
             <th>Profile</th>
             <th>Name</th>
             <th>Phone number</th>
-            <th>booking date</th>
+            <th>Month Starting from</th>
+            <th>Payable Amount</th>
             <th>booking amount</th>
             <th>Advance</th>
             <th>Status</th>
+            <th>Due pay</th>
           </tr>
         </thead>
         <tbody>
@@ -67,13 +72,41 @@ const AllMembers = () => {
                 <td>{member?.name}</td>
                 <td>{member?.phoneNumber}</td>
                 <td>{member?.bookingDate}</td>
+                <td>{parseInt(member?.monthlyPayment)*parseInt(member.dueMonth)}</td>
                 <td>{member?.bookingAmount}</td>
                 <td>{member?.advanceAmount}</td>
-                <th>
-                  <button className="btn btn-sm w-full capitalize rounded-none bg-indigo-300 border-0 text-white">
-                    pay
-                  </button>
-                </th>
+                <td>
+                  {payments?.find(
+                    (payment) => payment?.memberId === member?._id
+                  ) ? (
+                    <button className="btn btn-sm w-full capitalize rounded-none bg-indigo-400 border-0 text-white">
+                      Pay
+                    </button>
+                  ) : (
+                    <button
+                      disabled
+                      className="btn btn-sm w-full capitalize rounded-none bg-indigo-400 border-0 text-white"
+                    >
+                      Pay
+                    </button>
+                  )}
+                </td>
+                <td>
+                {payments?.find(
+                    (payment) => payment?.memberId === member?._id
+                  ) ? (
+                    <button className="btn btn-sm w-full capitalize rounded-none bg-indigo-400 border-0 text-white">
+                      Due
+                    </button>
+                  ) : (
+                    <button
+                      disabled
+                      className="btn btn-sm w-full capitalize rounded-none bg-indigo-400 border-0 text-white"
+                    >
+                      Due
+                    </button>
+                  )}
+                </td>
               </tr>
             ))
           )}
