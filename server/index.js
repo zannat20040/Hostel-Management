@@ -1,6 +1,6 @@
 const express = require('express')
 const cors = require('cors')
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion,ObjectId  } = require('mongodb');
 require('dotenv').config()
 const cron = require('node-cron');
 
@@ -81,6 +81,26 @@ async function run() {
 
     app.get('/members', async (req, res) => {
       const result = await allmembers.find().toArray();
+      res.send(result)
+    })
+
+    app.patch('/members/:id', async (req, res) => {
+      const id= req.params.id
+      const body= req.body
+      const query = {_id: new ObjectId(id)}
+      // const filter = await allmembers.findOne(query);
+      // const preDate = filter.bookingDate
+      // console.log(body.status)
+      // console.log()
+      const updateStaus = {
+        $set: {
+          status: body.status,
+          bookingDate: body.bookingDate.split('T')[0]
+        },
+      };
+      const result = await allmembers.updateOne(query, updateStaus);
+      console.log(result)
+      // console.log(updateStaus)
       res.send(result)
     })
 

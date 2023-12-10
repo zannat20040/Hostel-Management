@@ -30,11 +30,18 @@ const AllMembers = () => {
   });
 
 
-  const HandlePaymentSuccess=(id)=>{
-    console.log(id)
-    axios.patch(`http://localhost:5000/members/${id}`, {status:'payment done'})
+  const HandlePaymentSuccess=(id,date)=>{
+    console.log(id,date)
+    const recentDate = new Date(date);
+    console.log(recentDate);
+
+// Set the month to the next month
+recentDate.setMonth(recentDate.getMonth() + 1);
+
+console.log(recentDate);
+    axios.patch(`http://localhost:5000/members/${id}`, {status:'payment done', bookingDate:recentDate})
     .then(res=>{
-      console.log(res)
+      console.log(res.data)
     })
     .catch(err=>{
       console.log(err)
@@ -91,7 +98,7 @@ const AllMembers = () => {
                   {payments?.find(
                     (payment) => payment?.memberId === member?._id
                   ) ? (
-                    <button onClick={()=>HandlePaymentSuccess(member?._id)}  className="btn btn-sm w-full capitalize rounded-none bg-indigo-400 border-0 text-white">
+                    <button onClick={()=>HandlePaymentSuccess(member?._id, member?.bookingDate)}  className="btn btn-sm w-full capitalize rounded-none bg-indigo-400 border-0 text-white">
                       Pay
                     </button>
                   ) : (
