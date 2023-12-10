@@ -29,6 +29,18 @@ const AllMembers = () => {
     },
   });
 
+
+  const HandlePaymentSuccess=(id)=>{
+    console.log(id)
+    axios.patch(`http://localhost:5000/members/${id}`, {status:'payment done'})
+    .then(res=>{
+      console.log(res)
+    })
+    .catch(err=>{
+      console.log(err)
+    })
+  }
+
   return (
     <div className="min-h-screen bg-base-200 px-6 overflow-x-auto py-10">
       <table className="table bg-slate-100 shadow-lg rounded-none">
@@ -79,7 +91,7 @@ const AllMembers = () => {
                   {payments?.find(
                     (payment) => payment?.memberId === member?._id
                   ) ? (
-                    <button className="btn btn-sm w-full capitalize rounded-none bg-indigo-400 border-0 text-white">
+                    <button onClick={()=>HandlePaymentSuccess(member?._id)}  className="btn btn-sm w-full capitalize rounded-none bg-indigo-400 border-0 text-white">
                       Pay
                     </button>
                   ) : (
