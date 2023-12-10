@@ -19,23 +19,19 @@ const AllMembers = () => {
     },
   });
 
-
   const HandlePaymentSuccess = (id, date, index, dueMonth) => {
     const recentDate = new Date(date);
     recentDate.setMonth(recentDate.getMonth() + 1);
 
-    if (dueMonth>0) {
-      console.log("if block due month", dueMonth);
-
-      console.log('index: ',index);
-      const inputValue = document.getElementsByClassName(`recivePayment${index}`)[0].value;
-
-      console.log('inputed value',inputValue);
+    if (dueMonth > 0) {
+      const inputValue = document.getElementsByClassName(
+        `recivePayment${index}`
+      )[0].value;
 
       axios
         .patch(`http://localhost:5000/members/${id}`, {
           bookingDate: recentDate,
-          clearMonth:inputValue
+          clearMonth: inputValue,
         })
         .then((res) => {
           console.log(res.data);
@@ -44,12 +40,7 @@ const AllMembers = () => {
         .catch((err) => {
           console.log(err);
         });
-
-    } 
-    
-    else {
-      console.log("else block due month: ", dueMonth);
-      console.log('index: ',index);
+    } else {
 
       axios
         .patch(`http://localhost:5000/members/${id}`, {
@@ -64,6 +55,24 @@ const AllMembers = () => {
         });
     }
   };
+
+  const HandleDue=(id,dueMonth,date)=>{
+    const recentDate = new Date(date);
+    recentDate.setMonth(recentDate.getMonth() + 1);
+
+    axios
+    .patch(`http://localhost:5000/members/${id}`, {
+      updatedDueMonth: dueMonth+1,
+      bookingDate: recentDate,
+    })
+    .then((res) => {
+      console.log(res.data);
+      refetch();
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  }
 
   return (
     <div className="min-h-screen bg-base-200 px-6 overflow-x-auto py-10">
@@ -110,9 +119,7 @@ const AllMembers = () => {
                 <td>{member?.phoneNumber}</td>
                 <td>{member?.bookingDate}</td>
                 <td>{member?.monthlyPayment}</td>
-                <td>
-                  {parseInt(member?.monthlyPayment) * parseInt(member.dueMonth)}
-                </td>
+                <td>{member?.monthlyPayment * member.dueMonth}</td>
                 <td>{member?.bookingAmount}</td>
                 <td>{member?.advanceAmount}</td>
                 <td>
@@ -143,7 +150,7 @@ const AllMembers = () => {
                               index + 1
                             } input-sm input  rounded-none`}
                           />
-                          
+
                           <button
                             onClick={() =>
                               HandlePaymentSuccess(
@@ -170,8 +177,11 @@ const AllMembers = () => {
                   )}
                 </td>
                 <td>
-                  {member?.dueStatus === "pending" ? (
-                    <button className="btn btn-sm w-full capitalize rounded-none bg-indigo-400 border-0 text-white">
+                  {member?.status === "time to pay" ? (
+                    <button
+                      onClick={() => HandleDue(member?._id,member?.dueMonth,member?.bookingDate,)}
+                      className="btn btn-sm w-full capitalize rounded-none bg-indigo-400 border-0 text-white"
+                    >
                       Due
                     </button>
                   ) : (

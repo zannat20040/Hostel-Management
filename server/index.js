@@ -79,31 +79,44 @@ async function run() {
       const body = req.body
       const getMember = await allmembers.findOne(query);
 
+      let  updateStatus = {
+        $set: {
+          status: "running",
+          bookingDate: body.bookingDate.split('T')[0],
+        },
+      };
+
       if (body.clearMonth) {
-        const updateStatus = {
-          $set: {
-            status: "running",
-            dueStatus: 'no due',
-            bookingDate: body.bookingDate.split('T')[0],
-            dueMonth: getMember.dueMonth - body.clearMonth
-          },
-        };
-        const result = await allmembers.updateOne(query, updateStatus);
-        res.send(result)
+        updateStatus.$set.dueMonth = getMember.dueMonth - body.clearMonth
+        //   $set: {
+        //     status: "running",
+        //     dueStatus: 'no due',
+        //     bookingDate: body.bookingDate.split('T')[0],
+        //     dueMonth: getMember.dueMonth - body.clearMonth
+        //   },
+        // };
+        // const result = await allmembers.updateOne(query, updateStatus);
+        // res.send(result)
       }
 
-      else {
-        const updateStatus = {
-          $set: {
-            status: "running",
-            dueStatus: 'no due',
-            bookingDate: body.bookingDate.split('T')[0],
-          },
-        };
-        const result = await allmembers.updateOne(query, updateStatus);
-        res.send(result)
+      if (body.updatedDueMonth) {
+        updateStatus.$set.dueMonth = body.updatedDueMonth;
       }
+
+      // else {
+      //   const updateStatus = {
+      //     $set: {
+      //       status: "running",
+      //       dueStatus: 'no due',
+      //       bookingDate: body.bookingDate.split('T')[0],
+      //     },
+      //   };
+      // }
+      const result = await allmembers.updateOne(query, updateStatus);
+      res.send(result)
     })
+
+
 
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
