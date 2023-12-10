@@ -1,6 +1,5 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
 
 const AllMembers = () => {
   const {
@@ -20,36 +19,35 @@ const AllMembers = () => {
     },
   });
 
-  const { data: payments } = useQuery({
-    queryKey: ["payments"],
-    queryFn: async () => {
-      try {
-        const response = await axios.get("http://localhost:5000/paymentCheck");
-        return response.data;
-      } catch (error) {
-        console.log(error);
-        throw error;
-      }
-    },
-  });
+  // const { data: payments } = useQuery({
+  //   queryKey: ["payments"],
+  //   queryFn: async () => {
+  //     try {
+  //       const response = await axios.get("http://localhost:5000/paymentCheck");
+  //       return response.data;
+  //     } catch (error) {
+  //       console.log(error);
+  //       throw error;
+  //     }
+  //   },
+  // });
 
-  const HandlePaymentSuccess = (id, date) => {
-    console.log(id, date);
+  const HandlePaymentSuccess = (id, date,index) => {
     const recentDate = new Date(date);
-    console.log(recentDate);
-
-    // Set the month to the next month
     recentDate.setMonth(recentDate.getMonth() + 1);
 
-    console.log(recentDate);
+    if(index){
+      const inputValue = document.getElementsByClassName(`recivePayment${index}`)[0].value;
+      console.log(inputValue);
+    }
+    
     axios
       .patch(`http://localhost:5000/members/${id}`, {
         bookingDate: recentDate,
       })
       .then((res) => {
         console.log(res.data);
-      refetch()
-       
+        refetch();
       })
       .catch((err) => {
         console.log(err);
@@ -105,36 +103,66 @@ const AllMembers = () => {
                 <td>{member?.bookingAmount}</td>
                 <td>{member?.advanceAmount}</td>
                 <td>
-                  {
-                    member?.status==='time to pay'?( <button
-                      onClick={() =>
-                        HandlePaymentSuccess(member?._id, member?.bookingDate)
-                      }
+                  {member?.status === "time to pay" ? (
+                    <>
+                      {parseInt(member?.dueMonth) <= 1 ? (
+                        <button
+                          onClick={() =>
+                            HandlePaymentSuccess(
+                              member?._id,
+                              member?.bookingDate
+                            )
+                          }
+                          className="btn btn-sm w-full capitalize rounded-none bg-indigo-400 border-0 text-white"
+                        >
+                          Pay
+                        </button>
+                      ) : (
+                        <div className="flex">
+                          <input
+                            type="text"
+                            name="recivePayment"
+                            placeholder="Type here"
+                            className={`recivePayment${index} input-sm input  rounded-none`}                           
+                          />
+                          {/* <input type="number" className="" value="recivePayment"></input> */}
+                          <button
+                            onClick={() =>
+                              HandlePaymentSuccess(
+                                member?._id,
+                                member?.bookingDate,
+                                index
+                              )
+                            }
+                            className="btn btn-sm w-fit capitalize rounded-none bg-indigo-400 border-0 text-white"
+                          >
+                            Pay
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <button
+                      disabled
                       className="btn btn-sm w-full capitalize rounded-none bg-indigo-400 border-0 text-white"
                     >
                       Pay
-                    </button>):( <button
-                     disabled
-                      className="btn btn-sm w-full capitalize rounded-none bg-indigo-400 border-0 text-white"
-                    >
-                      Pay
-                    </button>)
-                  }
+                    </button>
+                  )}
                 </td>
                 <td>
-                {
-                    member?.dueStatus==='pending'?( <button
-                      
+                  {member?.dueStatus === "pending" ? (
+                    <button className="btn btn-sm w-full capitalize rounded-none bg-indigo-400 border-0 text-white">
+                      Due
+                    </button>
+                  ) : (
+                    <button
+                      disabled
                       className="btn btn-sm w-full capitalize rounded-none bg-indigo-400 border-0 text-white"
                     >
                       Due
-                    </button>):( <button
-                     disabled
-                      className="btn btn-sm w-full capitalize rounded-none bg-indigo-400 border-0 text-white"
-                    >
-                      Due
-                    </button>)
-                  }
+                    </button>
+                  )}
                 </td>
               </tr>
             ))
