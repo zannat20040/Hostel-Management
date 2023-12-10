@@ -3,7 +3,11 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 
 const AllMembers = () => {
-  const { data: members, isLoading } = useQuery({
+  const {
+    data: members,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["members"],
     queryFn: async () => {
       try {
@@ -29,24 +33,37 @@ const AllMembers = () => {
     },
   });
 
-
-  const HandlePaymentSuccess=(id,date)=>{
-    console.log(id,date)
+  const HandlePaymentSuccess = (id, date) => {
+    console.log(id, date);
     const recentDate = new Date(date);
     console.log(recentDate);
 
-// Set the month to the next month
-recentDate.setMonth(recentDate.getMonth() + 1);
+    // Set the month to the next month
+    recentDate.setMonth(recentDate.getMonth() + 1);
 
-console.log(recentDate);
-    axios.patch(`http://localhost:5000/members/${id}`, {status:'payment done', bookingDate:recentDate})
-    .then(res=>{
-      console.log(res.data)
-    })
-    .catch(err=>{
-      console.log(err)
-    })
-  }
+    console.log(recentDate);
+    axios
+      .patch(`http://localhost:5000/members/${id}`, {
+        status: "payment done",
+        bookingDate: recentDate,
+      })
+      .then((res) => {
+        console.log(res.data);
+      refetch()
+        // axios
+        //   .get(`http://localhost:5000/paymentCheck/${id}`)
+        //   .then((res) => {
+        //     console.log(res.data);
+        //     refetch();
+        //   })
+        //   .catch((err) => {
+        //     console.log(err);
+        //   });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   return (
     <div className="min-h-screen bg-base-200 px-6 overflow-x-auto py-10">
@@ -91,14 +108,21 @@ console.log(recentDate);
                 <td>{member?.name}</td>
                 <td>{member?.phoneNumber}</td>
                 <td>{member?.bookingDate}</td>
-                <td>{parseInt(member?.monthlyPayment)*parseInt(member.dueMonth)}</td>
+                <td>
+                  {parseInt(member?.monthlyPayment) * parseInt(member.dueMonth)}
+                </td>
                 <td>{member?.bookingAmount}</td>
                 <td>{member?.advanceAmount}</td>
                 <td>
                   {payments?.find(
                     (payment) => payment?.memberId === member?._id
                   ) ? (
-                    <button onClick={()=>HandlePaymentSuccess(member?._id, member?.bookingDate)}  className="btn btn-sm w-full capitalize rounded-none bg-indigo-400 border-0 text-white">
+                    <button
+                      onClick={() =>
+                        HandlePaymentSuccess(member?._id, member?.bookingDate)
+                      }
+                      className="btn btn-sm w-full capitalize rounded-none bg-indigo-400 border-0 text-white"
+                    >
                       Pay
                     </button>
                   ) : (
@@ -111,7 +135,7 @@ console.log(recentDate);
                   )}
                 </td>
                 <td>
-                {payments?.find(
+                  {payments?.find(
                     (payment) => payment?.memberId === member?._id
                   ) ? (
                     <button className="btn btn-sm w-full capitalize rounded-none bg-indigo-400 border-0 text-white">

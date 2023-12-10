@@ -25,42 +25,49 @@ async function run() {
   try {
     const database = client.db("HostelDB");
     const allmembers = database.collection("membersCollection");
-    const paymentCheck = database.collection("paymentCollection");
+    // const paymentCheck = database.collection("paymentCollection");
 
     // ----------Schedule
 
-
     cron.schedule('* * * * *', async () => {
-      // console.log('running a task every day');
+      console.log('running a task every day');
       const result = await allmembers.find().toArray();
 
       for (const booking of result) {
+
         const targetDate = new Date(booking.bookingDate)
         const today = new Date()
+        
+    console.log('Booking Date:', targetDate);
+    console.log('Today:', today);
 
         targetDate.setMonth(targetDate.getMonth() + 1);
-
-
-        if (
-          today >= targetDate
-        ) {
-          const userExist = await paymentCheck.findOne({ memberId: booking._id });
-          if (userExist) {
-            // console.log('already exist')
-          }
-          else {
-            const newPay = {
-              memberId: booking._id,
-              phoneNumber: booking.phoneNumber,
-              status: 'due'
-            }
-            await paymentCheck.insertOne(newPay);
-            // console.log(newPay)
-          }
+        if (today >= targetDate) {
+          const updateStaus = {
+            $set: {
+              status: 'time to pay'
+            },
+          };
+          console.log(updateStaus)
+          const updatedResult = await allmembers.updateOne({_id: new ObjectId(booking._id)}, updateStaus);
+          // const userExist = await paymentCheck.findOne({ memberId: booking._id });
+          // if (userExist) {
+          //   // console.log('already exist')
+          // }
+          // else {
+          //   const newPay = {
+          //     memberId: booking._id,
+          //     phoneNumber: booking.phoneNumber,
+          //     status: 'due'
+          //   }
+          //   await paymentCheck.insertOne(newPay);
+          //   // console.log(newPay)
+          // }
+          console.log(updatedResult)
         }
       }
-    });
 
+    });
 
     // -------------- post 
 
@@ -88,10 +95,6 @@ async function run() {
       const id= req.params.id
       const body= req.body
       const query = {_id: new ObjectId(id)}
-      // const filter = await allmembers.findOne(query);
-      // const preDate = filter.bookingDate
-      // console.log(body.status)
-      // console.log()
       const updateStaus = {
         $set: {
           status: body.status,
@@ -99,15 +102,22 @@ async function run() {
         },
       };
       const result = await allmembers.updateOne(query, updateStaus);
-      console.log(result)
-      // console.log(updateStaus)
       res.send(result)
     })
 
-    app.get('/paymentCheck', async (req, res) => {
-      const result = await paymentCheck.find().toArray();
-      res.send(result)
-    })
+    // app.get('/paymentCheck', async (req, res) => {
+    //   const result = await paymentCheck.find().toArray();
+    //   res.send(result)
+    // })
+
+    // app.get('/paymentCheck/:id', async (req, res) => {
+    //   const id= req.params.id
+    //   const query = {memberId: id}
+    //   console.log(query)
+    //   const result = await paymentCheck.findOne(query);
+    //   console.log('deleted item:', result)
+    //   // res.send(result)
+    // })
 
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
