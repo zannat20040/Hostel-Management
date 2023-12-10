@@ -32,26 +32,51 @@ const AllMembers = () => {
   //   },
   // });
 
-  const HandlePaymentSuccess = (id, date,index) => {
+  const HandlePaymentSuccess = (id, date, index, dueMonth) => {
     const recentDate = new Date(date);
     recentDate.setMonth(recentDate.getMonth() + 1);
+    // console.log(index)
+    // console.log(dueMonth)
 
-    if(index){
+    if (dueMonth>1) {
+      console.log("if block due month", dueMonth);
+
+      console.log('index: ',index);
       const inputValue = document.getElementsByClassName(`recivePayment${index}`)[0].value;
-      console.log(inputValue);
-    }
+
+      console.log('inputed value',inputValue);
+
+      axios
+        .patch(`http://localhost:5000/members/${id}`, {
+          bookingDate: recentDate,
+          clearMonth:inputValue
+        })
+        .then((res) => {
+          console.log(res.data);
+          refetch();
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+
+    } 
     
-    axios
-      .patch(`http://localhost:5000/members/${id}`, {
-        bookingDate: recentDate,
-      })
-      .then((res) => {
-        console.log(res.data);
-        refetch();
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    else {
+      console.log("else block due month: ", dueMonth);
+      console.log('index: ',index);
+
+      axios
+        .patch(`http://localhost:5000/members/${id}`, {
+          bookingDate: recentDate,
+        })
+        .then((res) => {
+          console.log(res.data);
+          refetch();
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
   };
 
   return (
@@ -80,7 +105,7 @@ const AllMembers = () => {
             </div>
           ) : (
             members?.map((member, index) => (
-              <tr className="text-center">
+              <tr className="text-center" key={member?._id}>
                 <td>{index + 1}</td>
                 <td>
                   <div className="flex items-center gap-3">
@@ -110,7 +135,9 @@ const AllMembers = () => {
                           onClick={() =>
                             HandlePaymentSuccess(
                               member?._id,
-                              member?.bookingDate
+                              member?.bookingDate,
+                              index + 1,
+                              member?.dueMonth
                             )
                           }
                           className="btn btn-sm w-full capitalize rounded-none bg-indigo-400 border-0 text-white"
@@ -123,7 +150,9 @@ const AllMembers = () => {
                             type="text"
                             name="recivePayment"
                             placeholder="Type here"
-                            className={`recivePayment${index} input-sm input  rounded-none`}                           
+                            className={`recivePayment${
+                              index + 1
+                            } input-sm input  rounded-none`}
                           />
                           {/* <input type="number" className="" value="recivePayment"></input> */}
                           <button
@@ -131,7 +160,8 @@ const AllMembers = () => {
                               HandlePaymentSuccess(
                                 member?._id,
                                 member?.bookingDate,
-                                index
+                                index + 1,
+                                member?.dueMonth
                               )
                             }
                             className="btn btn-sm w-fit capitalize rounded-none bg-indigo-400 border-0 text-white"

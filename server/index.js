@@ -1,6 +1,6 @@
 const express = require('express')
 const cors = require('cors')
-const { MongoClient, ServerApiVersion,ObjectId  } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const cron = require('node-cron');
 
@@ -30,16 +30,16 @@ async function run() {
     // ----------Schedule
 
     cron.schedule('* * * * *', async () => {
-      console.log('running a task every day');
+      // console.log('running a task every day');
       const result = await allmembers.find().toArray();
 
       for (const booking of result) {
 
         const targetDate = new Date(booking.bookingDate)
         const today = new Date()
-        
-    console.log('Booking Date:', targetDate);
-    console.log('Today:', today);
+
+        // console.log('Booking Date:', targetDate);
+        // console.log('Today:', today);
 
         targetDate.setMonth(targetDate.getMonth() + 1);
         if (today >= targetDate) {
@@ -48,8 +48,8 @@ async function run() {
               status: 'time to pay'
             },
           };
-          console.log(updateStaus)
-          const updatedResult = await allmembers.updateOne({_id: new ObjectId(booking._id)}, updateStaus);
+          // console.log(updateStaus)
+          const updatedResult = await allmembers.updateOne({ _id: new ObjectId(booking._id) }, updateStaus);
           // const userExist = await paymentCheck.findOne({ memberId: booking._id });
           // if (userExist) {
           //   // console.log('already exist')
@@ -63,7 +63,7 @@ async function run() {
           //   await paymentCheck.insertOne(newPay);
           //   // console.log(newPay)
           // }
-          console.log(updatedResult)
+          // console.log(updatedResult)
         }
       }
 
@@ -92,33 +92,53 @@ async function run() {
     })
 
     app.patch('/members/:id', async (req, res) => {
-      const id= req.params.id
-      const body= req.body
-      const query = {_id: new ObjectId(id)}
-      const updateStaus = {
-        $set: {
-          status:"running",
-          dueStatus:'no due',
-          bookingDate: body.bookingDate.split('T')[0]
-        },
-      };
-      const result = await allmembers.updateOne(query, updateStaus);
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) }
+      const body = req.body
+
+      if (body.clearMonth) {
+        const getMember = await allmembers.findOne(query);
+        console.log('due month:', getMember.dueMonth)
+        console.log('clear month:', body.clearMonth)
+        console.log(updatedDueMonth)
+        const updateStatus = {
+          $set: {
+            status: "running",
+            dueStatus: 'no due',
+            bookingDate: body.bookingDate.split('T')[0],
+            dueMonth: getMember.dueMonth - body.clearMonth
+          },
+        };
+     
+        const result = await allmembers.updateOne(query, updateStatus);
       res.send(result)
+      }
+      else {
+        const getMember = await allmembers.findOne(query);
+        console.log('due month:', getMember.dueMonth)
+
+        const updateStatus = {
+          $set: {
+            status: "running",
+            dueStatus: 'no due',
+            bookingDate: body.bookingDate.split('T')[0],
+          },
+        };
+        const result = await allmembers.updateOne(query, updateStatus);
+        res.send(result)
+      }
+
+      // const updateStaus = {
+      //   $set: {
+      //     status:"running",
+      //     dueStatus:'no due',
+      //     bookingDate: body.bookingDate.split('T')[0]
+      //   },
+      // };
+      // console.log(updateStaus)
+      // const result = await allmembers.updateOne(query, updateStaus);
+      // res.send(result)
     })
-
-    // app.get('/paymentCheck', async (req, res) => {
-    //   const result = await paymentCheck.find().toArray();
-    //   res.send(result)
-    // })
-
-    // app.get('/paymentCheck/:id', async (req, res) => {
-    //   const id= req.params.id
-    //   const query = {memberId: id}
-    //   console.log(query)
-    //   const result = await paymentCheck.findOne(query);
-    //   console.log('deleted item:', result)
-    //   // res.send(result)
-    // })
 
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
