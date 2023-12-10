@@ -19,26 +19,12 @@ const AllMembers = () => {
     },
   });
 
-  // const { data: payments } = useQuery({
-  //   queryKey: ["payments"],
-  //   queryFn: async () => {
-  //     try {
-  //       const response = await axios.get("http://localhost:5000/paymentCheck");
-  //       return response.data;
-  //     } catch (error) {
-  //       console.log(error);
-  //       throw error;
-  //     }
-  //   },
-  // });
 
   const HandlePaymentSuccess = (id, date, index, dueMonth) => {
     const recentDate = new Date(date);
     recentDate.setMonth(recentDate.getMonth() + 1);
-    // console.log(index)
-    // console.log(dueMonth)
 
-    if (dueMonth>1) {
+    if (dueMonth>0) {
       console.log("if block due month", dueMonth);
 
       console.log('index: ',index);
@@ -90,7 +76,8 @@ const AllMembers = () => {
             <th>Name</th>
             <th>Phone number</th>
             <th>Month Starting from</th>
-            <th>Payable Amount</th>
+            <th>Seat Fee</th>
+            <th>Due Amount</th>
             <th>booking amount</th>
             <th>Advance</th>
             <th>Status</th>
@@ -122,6 +109,7 @@ const AllMembers = () => {
                 <td>{member?.name}</td>
                 <td>{member?.phoneNumber}</td>
                 <td>{member?.bookingDate}</td>
+                <td>{member?.monthlyPayment}</td>
                 <td>
                   {parseInt(member?.monthlyPayment) * parseInt(member.dueMonth)}
                 </td>
@@ -130,7 +118,7 @@ const AllMembers = () => {
                 <td>
                   {member?.status === "time to pay" ? (
                     <>
-                      {parseInt(member?.dueMonth) <= 1 ? (
+                      {parseInt(member?.dueMonth) <= 0 ? (
                         <button
                           onClick={() =>
                             HandlePaymentSuccess(
@@ -148,13 +136,14 @@ const AllMembers = () => {
                         <div className="flex">
                           <input
                             type="text"
+                            required
                             name="recivePayment"
                             placeholder="Type here"
                             className={`recivePayment${
                               index + 1
                             } input-sm input  rounded-none`}
                           />
-                          {/* <input type="number" className="" value="recivePayment"></input> */}
+                          
                           <button
                             onClick={() =>
                               HandlePaymentSuccess(

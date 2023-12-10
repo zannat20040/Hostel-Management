@@ -25,7 +25,6 @@ async function run() {
   try {
     const database = client.db("HostelDB");
     const allmembers = database.collection("membersCollection");
-    // const paymentCheck = database.collection("paymentCollection");
 
     // ----------Schedule
 
@@ -38,9 +37,6 @@ async function run() {
         const targetDate = new Date(booking.bookingDate)
         const today = new Date()
 
-        // console.log('Booking Date:', targetDate);
-        // console.log('Today:', today);
-
         targetDate.setMonth(targetDate.getMonth() + 1);
         if (today >= targetDate) {
           const updateStaus = {
@@ -48,22 +44,8 @@ async function run() {
               status: 'time to pay'
             },
           };
-          // console.log(updateStaus)
-          const updatedResult = await allmembers.updateOne({ _id: new ObjectId(booking._id) }, updateStaus);
-          // const userExist = await paymentCheck.findOne({ memberId: booking._id });
-          // if (userExist) {
-          //   // console.log('already exist')
-          // }
-          // else {
-          //   const newPay = {
-          //     memberId: booking._id,
-          //     phoneNumber: booking.phoneNumber,
-          //     status: 'due'
-          //   }
-          //   await paymentCheck.insertOne(newPay);
-          //   // console.log(newPay)
-          // }
-          // console.log(updatedResult)
+  
+         await allmembers.updateOne({ _id: new ObjectId(booking._id) }, updateStaus);
         }
       }
 
@@ -95,12 +77,9 @@ async function run() {
       const id = req.params.id
       const query = { _id: new ObjectId(id) }
       const body = req.body
+      const getMember = await allmembers.findOne(query);
 
       if (body.clearMonth) {
-        const getMember = await allmembers.findOne(query);
-        console.log('due month:', getMember.dueMonth)
-        console.log('clear month:', body.clearMonth)
-        console.log(updatedDueMonth)
         const updateStatus = {
           $set: {
             status: "running",
@@ -109,14 +88,11 @@ async function run() {
             dueMonth: getMember.dueMonth - body.clearMonth
           },
         };
-     
         const result = await allmembers.updateOne(query, updateStatus);
-      res.send(result)
+        res.send(result)
       }
-      else {
-        const getMember = await allmembers.findOne(query);
-        console.log('due month:', getMember.dueMonth)
 
+      else {
         const updateStatus = {
           $set: {
             status: "running",
@@ -127,17 +103,6 @@ async function run() {
         const result = await allmembers.updateOne(query, updateStatus);
         res.send(result)
       }
-
-      // const updateStaus = {
-      //   $set: {
-      //     status:"running",
-      //     dueStatus:'no due',
-      //     bookingDate: body.bookingDate.split('T')[0]
-      //   },
-      // };
-      // console.log(updateStaus)
-      // const result = await allmembers.updateOne(query, updateStaus);
-      // res.send(result)
     })
 
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
