@@ -97,7 +97,8 @@ async function run() {
       const query = {_id: new ObjectId(id)}
       const updateStaus = {
         $set: {
-          status: body.status,
+          status:"payment done",
+          dueStatus:'no due',
           bookingDate: body.bookingDate.split('T')[0]
         },
       };

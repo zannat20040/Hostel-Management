@@ -44,21 +44,12 @@ const AllMembers = () => {
     console.log(recentDate);
     axios
       .patch(`http://localhost:5000/members/${id}`, {
-        status: "payment done",
         bookingDate: recentDate,
       })
       .then((res) => {
         console.log(res.data);
       refetch()
-        // axios
-        //   .get(`http://localhost:5000/paymentCheck/${id}`)
-        //   .then((res) => {
-        //     console.log(res.data);
-        //     refetch();
-        //   })
-        //   .catch((err) => {
-        //     console.log(err);
-        //   });
+       
       })
       .catch((err) => {
         console.log(err);
@@ -114,41 +105,36 @@ const AllMembers = () => {
                 <td>{member?.bookingAmount}</td>
                 <td>{member?.advanceAmount}</td>
                 <td>
-                  {payments?.find(
-                    (payment) => payment?.memberId === member?._id
-                  ) ? (
-                    <button
+                  {
+                    member?.status==='time to pay'?( <button
                       onClick={() =>
                         HandlePaymentSuccess(member?._id, member?.bookingDate)
                       }
                       className="btn btn-sm w-full capitalize rounded-none bg-indigo-400 border-0 text-white"
                     >
                       Pay
-                    </button>
-                  ) : (
-                    <button
-                      disabled
+                    </button>):( <button
+                     disabled
                       className="btn btn-sm w-full capitalize rounded-none bg-indigo-400 border-0 text-white"
                     >
                       Pay
-                    </button>
-                  )}
+                    </button>)
+                  }
                 </td>
                 <td>
-                  {payments?.find(
-                    (payment) => payment?.memberId === member?._id
-                  ) ? (
-                    <button className="btn btn-sm w-full capitalize rounded-none bg-indigo-400 border-0 text-white">
-                      Due
-                    </button>
-                  ) : (
-                    <button
-                      disabled
+                {
+                    member?.dueStatus==='pending'?( <button
+                      
                       className="btn btn-sm w-full capitalize rounded-none bg-indigo-400 border-0 text-white"
                     >
                       Due
-                    </button>
-                  )}
+                    </button>):( <button
+                     disabled
+                      className="btn btn-sm w-full capitalize rounded-none bg-indigo-400 border-0 text-white"
+                    >
+                      Due
+                    </button>)
+                  }
                 </td>
               </tr>
             ))

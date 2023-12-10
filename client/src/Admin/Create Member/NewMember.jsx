@@ -25,6 +25,7 @@ const NewMember = () => {
             bookingAmount: bookingpay,
             advanceAmount: advancepay,
             status:'running',
+            dueStatus:'no due',
             dueMonth:'1'
         }
 
