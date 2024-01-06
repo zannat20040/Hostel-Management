@@ -29,14 +29,46 @@ async function run() {
     // ----------Schedule
 
     cron.schedule('* * * * *', async () => {
-      // console.log('running a task every day');
+      console.log('running a task every day');
       const result = await allmembers.find().toArray();
 
       for (const booking of result) {
+        const query = { _id: new ObjectId(booking._id) }
+
+        if (booking.leavingDate != null) {
+          const leavingDate = new Date(booking.leavingDate)
+          const today = new Date()
+          if (today >= leavingDate && booking.checkoutDone=='null') {
+
+            if(booking.dueMonth==0){
+              const remainingAmount = booking.advanceAmount - booking.monthlyPayment
+              const updateAdvance = {
+                $set: {
+                  // advanceAmount: remainingAmount,
+                  returnableAmount: remainingAmount,
+                  checkoutDone:'clear'
+                },
+              };
+              await allmembers.updateOne(query, updateAdvance);
+            }
+            else{
+              const remainingAmount =booking.advanceAmount- (parseInt(booking.monthlyPayment)+(booking.dueMonth*parseInt(booking.monthlyPayment)))
+              const updateAdvance = {
+                $set: {
+                  dueMonth: 0,
+                  checkoutDone:'clear',
+                  returnableAmount: remainingAmount,
+                  // advanceAmount: remainingAmount
+                },
+              };
+              await allmembers.updateOne(query, updateAdvance);
+            }
+          }
+
+        }
 
         const targetDate = new Date(booking.bookingDate)
         const today = new Date()
-
         targetDate.setMonth(targetDate.getMonth() + 1);
         if (today >= targetDate) {
           const updateStaus = {
@@ -44,8 +76,8 @@ async function run() {
               status: 'time to pay'
             },
           };
-  
-         await allmembers.updateOne({ _id: new ObjectId(booking._id) }, updateStaus);
+
+          await allmembers.updateOne(query, updateStaus);
         }
       }
 
@@ -79,41 +111,38 @@ async function run() {
       const body = req.body
       const getMember = await allmembers.findOne(query);
 
-      let  updateStatus = {
-        $set: {
-          status: "running",
-          bookingDate: body.bookingDate.split('T')[0],
-        },
-      };
+      if (body.clearMonth || body.updatedDueMonth) {
 
-      if (body.clearMonth) {
-        updateStatus.$set.dueMonth = getMember.dueMonth - body.clearMonth
-        //   $set: {
-        //     status: "running",
-        //     dueStatus: 'no due',
-        //     bookingDate: body.bookingDate.split('T')[0],
-        //     dueMonth: getMember.dueMonth - body.clearMonth
-        //   },
-        // };
-        // const result = await allmembers.updateOne(query, updateStatus);
-        // res.send(result)
+        let updateStatus = {
+          $set: {
+            status: "running",
+            bookingDate: body.bookingDate.split('T')[0],
+          },
+        };
+
+        if (body.clearMonth) {
+          updateStatus.$set.dueMonth = getMember.dueMonth - body.clearMonth
+        }
+        if (body.updatedDueMonth) {
+          updateStatus.$set.dueMonth = body.updatedDueMonth;
+        }
+        const result = await allmembers.updateOne(query, updateStatus);
+        res.send(result)
+
       }
 
-      if (body.updatedDueMonth) {
-        updateStatus.$set.dueMonth = body.updatedDueMonth;
+
+      else {
+        const updateLeavingDate = {
+          $set: {
+            leavingDate: body.leavingDate,
+            checkoutDone: null
+          },
+        };
+        const result = await allmembers.updateOne(query, updateLeavingDate);
+        res.send(result)
       }
 
-      // else {
-      //   const updateStatus = {
-      //     $set: {
-      //       status: "running",
-      //       dueStatus: 'no due',
-      //       bookingDate: body.bookingDate.split('T')[0],
-      //     },
-      //   };
-      // }
-      const result = await allmembers.updateOne(query, updateStatus);
-      res.send(result)
     })
 
     console.log("Pinged your deployment. You successfully connected to MongoDB!");

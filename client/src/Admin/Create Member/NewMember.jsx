@@ -2,8 +2,28 @@ import React from "react";
 import NewMemberLayout from "./NewMemberLayout";
 import axios from 'axios'
 import toast from "react-hot-toast";
+import { useQuery } from "@tanstack/react-query";
 
 const NewMember = () => {
+
+    const {
+        data: members,
+        isLoading,
+        refetch,
+      } = useQuery({
+        queryKey: ["members"],
+        queryFn: async () => {
+          try {
+            const response = await axios.get("http://localhost:5000/members");
+            return response.data;
+          } catch (error) {
+            console.log(error);
+            throw error;
+          }
+        },
+      });
+
+      
     const HandleAddMember=(e)=>{
         e.preventDefault()
 
@@ -26,16 +46,16 @@ const NewMember = () => {
             advanceAmount: advancepay,
             status:'running',
             dueStatus:'no due',
-            dueMonth:'1'
+            dueMonth: 1,
+            leavingDate: 'null',
         }
 
-        console.log(newMember)
 
         axios.post('http://localhost:5000/members', newMember)
         .then(res=>{
             if(res.data.insertedId){
-                console.log('')
                 toast.success('A new girl admitted successfully')
+                refetch()
             }
             else{
                 toast.error(res.data.message)
@@ -48,7 +68,7 @@ const NewMember = () => {
 
     }
   return (
-    <NewMemberLayout HandleAddMember={HandleAddMember}></NewMemberLayout>
+    <NewMemberLayout HandleAddMember={HandleAddMember} members={members}></NewMemberLayout>
   );
 };
 

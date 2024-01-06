@@ -24,30 +24,26 @@ const AllMembers = () => {
     recentDate.setMonth(recentDate.getMonth() + 1);
 
     if (dueMonth > 0) {
-      const inputValue = document.getElementsByClassName(
-        `recivePayment${index}`
-      )[0].value;
+      const inputValue = document.getElementById(`recivePayment${index}`).value;
 
+      console.log("amount: ", inputValue);
       axios
         .patch(`http://localhost:5000/members/${id}`, {
           bookingDate: recentDate,
           clearMonth: inputValue,
         })
         .then((res) => {
-          console.log(res.data);
           refetch();
         })
         .catch((err) => {
           console.log(err);
         });
     } else {
-
       axios
         .patch(`http://localhost:5000/members/${id}`, {
           bookingDate: recentDate,
         })
         .then((res) => {
-          console.log(res.data);
           refetch();
         })
         .catch((err) => {
@@ -56,23 +52,44 @@ const AllMembers = () => {
     }
   };
 
-  const HandleDue=(id,dueMonth,date)=>{
+  const HandleDue = (id, dueMonth, date) => {
     const recentDate = new Date(date);
     recentDate.setMonth(recentDate.getMonth() + 1);
 
     axios
-    .patch(`http://localhost:5000/members/${id}`, {
-      updatedDueMonth: dueMonth+1,
-      bookingDate: recentDate,
-    })
-    .then((res) => {
-      console.log(res.data);
-      refetch();
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-  }
+      .patch(`http://localhost:5000/members/${id}`, {
+        updatedDueMonth: dueMonth + 1,
+        bookingDate: recentDate,
+      })
+      .then((res) => {
+        console.log(res.data);
+        refetch();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const HandleLeave = (e, id) => {
+    e.preventDefault();
+    const leavingDate = new Date(e.target.date.value);
+    leavingDate.setMonth(leavingDate.getMonth() - 1);
+
+
+    // const recentDate = new Date(date);
+    // recentDate.setMonth(recentDate.getMonth() + 1);
+
+    axios
+      .patch(`http://localhost:5000/members/${id}`, {
+        leavingDate: leavingDate,
+      })
+      .then((res) => {
+        refetch();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   return (
     <div className="min-h-screen bg-base-200 px-6 overflow-x-auto py-10">
@@ -89,8 +106,10 @@ const AllMembers = () => {
             <th>Due Amount</th>
             <th>booking amount</th>
             <th>Advance</th>
+            <th>Returnable</th>
             <th>Status</th>
             <th>Due pay</th>
+            <th>Leaving Status</th>
           </tr>
         </thead>
         <tbody>
@@ -122,6 +141,7 @@ const AllMembers = () => {
                 <td>{member?.monthlyPayment * member.dueMonth}</td>
                 <td>{member?.bookingAmount}</td>
                 <td>{member?.advanceAmount}</td>
+                <td>{member?.returnableAmount}</td>
                 <td>
                   {member?.status === "time to pay" ? (
                     <>
@@ -146,9 +166,8 @@ const AllMembers = () => {
                             required
                             name="recivePayment"
                             placeholder="Type here"
-                            className={`recivePayment${
-                              index + 1
-                            } input-sm input  rounded-none`}
+                            id={`recivePayment${index + 1}`}
+                            className="input-sm input  rounded-none"
                           />
 
                           <button
@@ -179,7 +198,13 @@ const AllMembers = () => {
                 <td>
                   {member?.status === "time to pay" ? (
                     <button
-                      onClick={() => HandleDue(member?._id,member?.dueMonth,member?.bookingDate,)}
+                      onClick={() =>
+                        HandleDue(
+                          member?._id,
+                          member?.dueMonth,
+                          member?.bookingDate
+                        )
+                      }
                       className="btn btn-sm w-full capitalize rounded-none bg-indigo-400 border-0 text-white"
                     >
                       Due
@@ -192,6 +217,23 @@ const AllMembers = () => {
                       Due
                     </button>
                   )}
+                </td>
+                <td>
+                  <form
+                    className="flex"
+                    onSubmit={(e) => HandleLeave(e, member?._id)}
+                  >
+                    <input
+                      type="date"
+                      placeholder="booking date"
+                      className="input-sm border-0 outline-0 text-slate-500 rounded-none"
+                      required
+                      name="date"
+                    />
+                    <button className="btn btn-sm  capitalize rounded-none bg-indigo-400 border-0 text-white">
+                      Will go
+                    </button>
+                  </form>
                 </td>
               </tr>
             ))

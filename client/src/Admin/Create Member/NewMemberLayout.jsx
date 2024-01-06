@@ -1,11 +1,13 @@
 import React from 'react';
 import Button from '../../Shared Component/Button';
 
-const NewMemberLayout = ({HandleAddMember}) => {
+const NewMemberLayout = ({HandleAddMember,members}) => {
+
     return (
         <div className="hero min-h-screen bg-base-200 px-6 ">
-        <div className="card w-full max-w-xl shadow-2xl rounded-none bg-base-100">
-          <form className="card-body" onSubmit={HandleAddMember}>
+        <div className="card  rounded-none  grid grid-cols-2 gap-5 justify-between">
+      
+          <form className="card-body bg-base-100  shadow-2xl" onSubmit={HandleAddMember}>
             <div className="grid grid-cols-3 gap-4">
               <div className="form-control col-span-2">
                 <label className="label">
@@ -116,6 +118,62 @@ const NewMemberLayout = ({HandleAddMember}) => {
               <Button label={"add this member"}></Button>
             </div>
           </form>
+          <div className='overflow-y-auto'>
+          <table className="table bg-slate-100 shadow-lg rounded-none">
+        {/* head */}
+        <thead>
+          <tr className=" bg-slate-400 text-white text-center">
+            <th className="py-3">No.</th>
+            <th>Profile</th>
+            <th>Name</th>
+            <th>Phone number</th>
+            <th>Seat Fee</th>
+            <th>Leaving Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {/* row 1 */}
+          {
+            members?.map((member, index) => (
+              <tr className="text-center" key={member?._id}>
+                <td>{index + 1}</td>
+                <td>
+                  <div className="flex items-center gap-3">
+                    <div className="avatar">
+                      <div className="mask mask-squircle w-12 h-12">
+                        <img
+                          src={member?.image}
+                          alt="Avatar Tailwind CSS Component"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td>{member?.name}</td>
+                <td>{member?.phoneNumber}</td>
+                <td>{member?.monthlyPayment}</td>
+                <td>
+                  <form className="flex" onSubmit={(e) => HandleLeave(e,member?._id)}>
+                  <input
+                      type="date"
+                      placeholder="booking date"
+                      className="input-sm border-0 outline-0 text-slate-500 rounded-none"
+                      required
+                      name="date"
+                    />
+                    <button
+                    className="btn btn-sm  capitalize rounded-none bg-indigo-400 border-0 text-white"
+                  >
+                    Will go
+                  </button>
+                  </form>
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+          </div>
         </div>
       </div>
     );
