@@ -38,25 +38,25 @@ async function run() {
         if (booking.leavingDate != null) {
           const leavingDate = new Date(booking.leavingDate)
           const today = new Date()
-          if (today >= leavingDate && booking.checkoutDone=='null') {
+          if (today >= leavingDate && booking.checkoutDone == 'null') {
 
-            if(booking.dueMonth==0){
+            if (booking.dueMonth == 0) {
               const remainingAmount = booking.advanceAmount - booking.monthlyPayment
               const updateAdvance = {
                 $set: {
                   // advanceAmount: remainingAmount,
                   returnableAmount: remainingAmount,
-                  checkoutDone:'clear'
+                  checkoutDone: 'clear'
                 },
               };
               await allmembers.updateOne(query, updateAdvance);
             }
-            else{
-              const remainingAmount =booking.advanceAmount- (parseInt(booking.monthlyPayment)+(booking.dueMonth*parseInt(booking.monthlyPayment)))
+            else {
+              const remainingAmount = booking.advanceAmount - (parseInt(booking.monthlyPayment) + (booking.dueMonth * parseInt(booking.monthlyPayment)))
               const updateAdvance = {
                 $set: {
                   dueMonth: 0,
-                  checkoutDone:'clear',
+                  checkoutDone: 'clear',
                   returnableAmount: remainingAmount,
                   // advanceAmount: remainingAmount
                 },
@@ -90,7 +90,6 @@ async function run() {
       const query = { phoneNumber: member.phoneNumber }
       const findMember = await allmembers.findOne(query);
       if (findMember) {
-
         res.send({ message: 'This girl is already admitted' })
       }
       else {
@@ -102,6 +101,14 @@ async function run() {
 
     app.get('/members', async (req, res) => {
       const result = await allmembers.find().toArray();
+      res.send(result)
+    })
+
+    app.get('/members/:id', async (req, res) => {
+      const id = req.params.id
+      console.log('getting from 108',id)
+      const query = { _id: new ObjectId(id) }
+      const result = await allmembers.findOne(query);
       res.send(result)
     })
 
